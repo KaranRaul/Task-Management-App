@@ -1,11 +1,20 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import toast from "../utils/toastConfig"; // For toast notifications
+import { createTask } from "../services/api"; // Centralized API call
 
-const TaskForm: React.FC = () => {
+interface Task {
+    _id: string;
+    title: string;
+    description: string;
+    status: string;
+    dueDate: string;
+}
+
+const TaskForm: React.FC<{ addTask: (task: Task) => void }> = ({ addTask }) => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [dueDate, setDueDate] = useState("");
+    const [status, setStatus] = useState("Pending");
     const [file, setFile] = useState<File | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -14,11 +23,19 @@ const TaskForm: React.FC = () => {
         formData.append("title", title);
         formData.append("description", description);
         formData.append("dueDate", dueDate);
+        formData.append("status", status);
         if (file) formData.append("file", file);
 
         try {
-            await axios.post("http://localhost:5000/api/tasks", formData);
+            const newTask = await createTask(formData); // Create task using centralized API function
+            addTask(newTask); // Add the new task to the list in TaskList
             toast.success("Task added successfully!");
+            // Reset form after submission
+            setTitle("");
+            setDescription("");
+            setDueDate("");
+            setStatus("Pending");
+            setFile(null);
         } catch (error) {
             toast.error("Failed to add task!");
         }
@@ -55,6 +72,19 @@ const TaskForm: React.FC = () => {
                     className="w-full p-2 border border-gray-300 rounded-md"
                     required
                 />
+            </div>
+            <div className="mb-4">
+                <label className="block mb-2 font-semibold">Status</label>
+                <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    required
+                >
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
             </div>
             <div className="mb-4">
                 <label className="block mb-2 font-semibold">File (optional)</label>

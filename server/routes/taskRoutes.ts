@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import Task from "../models/Task";
+import authMiddleware from "../middlewares/authMiddleware"; // Middleware to verify user token
 
 const router = express.Router();
 
@@ -8,35 +9,45 @@ const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 // Create Task
-router.post("/", upload.single("file"), async (req, res) => {
-    const { title, description, status, dueDate } = req.body;
-    const file = req.file?.path;
-    try {
-        const task = new Task({ title, description, status, dueDate, file });
-        await task.save();
-        res.status(201).json(task);
-    } catch (error) {
-        res.status(500).json({ message: "Error creating task" });
-    }
-});
 
-// Get All Tasks
-router.get("/", async (req, res) => {
+// Get tasks for the logged-in user
+router.get("/", authMiddleware, async (req: any, res) => {
     try {
-        const tasks = await Task.find();
+        const userId = req.user.id; // Retrieved from middleware
+        const tasks = await Task.find({ userId });
         res.status(200).json(tasks);
     } catch (error) {
         res.status(500).json({ message: "Error fetching tasks" });
     }
 });
 
+// Create a new task
+router.post("/", authMiddleware, async (req: any, res) => {
+    const { title, description, status, dueDate } = req.body;
+    const file = req.file?.path;
+
+    try {
+        const task = new Task({
+            title,
+            description,
+            status,
+            dueDate,
+            file,
+            userId: req.user.id, // Set userId from the token
+        });
+        await task.save();
+        res.status(201).json(task || []);
+    } catch (error) {
+        res.status(500).json({ message: "Error creating task" });
+    }
+});
 // Update Task
 router.put("/:id", async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
     try {
         const task = await Task.findByIdAndUpdate(id, updates, { new: true });
-        res.status(200).json(task);
+        res.status(200).json(task || []);
     } catch (error) {
         res.status(500).json({ message: "Error updating task" });
     }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { loginUser } from "../services/api"; // Centralized API function
+import toast from "../utils/toastConfig"; // Centralized Toast
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -11,12 +11,12 @@ const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/login", { email, password });
-            localStorage.setItem("token", response.data.token);
-            toast.success("Login successful!");
-            navigate("/");
+            const response = await loginUser({ email, password }); // Using centralized login API function
+            localStorage.setItem("token", response.token); // Store token in localStorage
+            toast.success("Login successful!"); // Display success toast
+            navigate("/"); // Redirect to homepage
         } catch (error) {
-            toast.error("Invalid credentials. Please try again!");
+            toast.error("Invalid credentials. Please try again!"); // Display error toast
         }
     };
 

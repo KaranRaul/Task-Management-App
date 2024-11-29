@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 import TaskItem from "./TaskItem";
 
 interface Task {
@@ -10,27 +9,18 @@ interface Task {
     dueDate: string;
 }
 
-const TaskList: React.FC = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
+interface TaskListProps {
+    tasks: Task[]; // Expecting tasks as a prop
+}
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const response = await axios.get("http://localhost:5000/api/tasks");
-                setTasks(response.data);
-            } catch (error) {
-                console.error("Error fetching tasks:", error);
-            }
-        };
-
-        fetchTasks();
-    }, []);
-
+const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
     return (
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {tasks.map((task) => (
-                <TaskItem key={task._id} task={task} />
-            ))}
+            {tasks.length > 0 ? (
+                tasks.map((task) => <TaskItem key={task._id} task={task} />)
+            ) : (
+                <p>No tasks found.</p>
+            )}
         </div>
     );
 };

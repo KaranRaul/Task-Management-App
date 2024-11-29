@@ -15,31 +15,41 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const Task_1 = __importDefault(require("../models/Task"));
+const authMiddleware_1 = __importDefault(require("../middlewares/authMiddleware")); // Middleware to verify user token
 const router = express_1.default.Router();
 // File Upload Configuration
 const upload = (0, multer_1.default)({ dest: "uploads/" });
 // Create Task
-router.post("/", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const { title, description, status, dueDate } = req.body;
-    const file = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
+// Get tasks for the logged-in user
+router.get("/", authMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const task = new Task_1.default({ title, description, status, dueDate, file });
-        yield task.save();
-        res.status(201).json(task);
-    }
-    catch (error) {
-        res.status(500).json({ message: "Error creating task" });
-    }
-}));
-// Get All Tasks
-router.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const tasks = yield Task_1.default.find();
+        const userId = req.user.id; // Retrieved from middleware
+        const tasks = yield Task_1.default.find({ userId });
         res.status(200).json(tasks);
     }
     catch (error) {
         res.status(500).json({ message: "Error fetching tasks" });
+    }
+}));
+// Create a new task
+router.post("/", authMiddleware_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { title, description, status, dueDate } = req.body;
+    const file = (_a = req.file) === null || _a === void 0 ? void 0 : _a.path;
+    try {
+        const task = new Task_1.default({
+            title,
+            description,
+            status,
+            dueDate,
+            file,
+            userId: req.user.id, // Set userId from the token
+        });
+        yield task.save();
+        res.status(201).json(task || []);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error creating task" });
     }
 }));
 // Update Task
@@ -48,7 +58,7 @@ router.put("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const updates = req.body;
     try {
         const task = yield Task_1.default.findByIdAndUpdate(id, updates, { new: true });
-        res.status(200).json(task);
+        res.status(200).json(task || []);
     }
     catch (error) {
         res.status(500).json({ message: "Error updating task" });

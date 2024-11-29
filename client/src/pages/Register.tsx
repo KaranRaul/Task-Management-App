@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { registerUser } from "../services/api"; // Centralized API function
+import toast from "../utils/toastConfig"; // Centralized Toast
 
 const Register: React.FC = () => {
     const [name, setName] = useState("");
@@ -12,11 +12,11 @@ const Register: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:5000/api/auth/register", { name, email, password });
+            await registerUser({ name, email, password }); // Using centralized register API function
             toast.success("Registration successful! Please log in.");
-            navigate("/login");
+            navigate("/login"); // Redirect to login page after successful registration
         } catch (error) {
-            toast.error("Registration failed. Please try again!");
+            toast.error("Registration failed. Please try again!"); // Display error toast
         }
     };
 
