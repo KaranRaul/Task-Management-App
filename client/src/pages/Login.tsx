@@ -1,22 +1,25 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/api"; // Centralized API function
-import toast from "../utils/toastConfig"; // Centralized Toast
+import Alert from "../components/Alert"; // Import Alert component
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [alert, setAlert] = useState<{ type: string; message: string } | null>(
+        null
+    );
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await loginUser({ email, password }); // Using centralized login API function
-            localStorage.setItem("token", response.token); // Store token in localStorage
-            toast.success("Login successful!"); // Display success toast
-            navigate("/"); // Redirect to homepage
+            const response = await loginUser({ email, password }); // Call centralized API
+            localStorage.setItem("token", response.token); // Store token
+            setAlert({ type: "success", message: "Login successful!" }); // Show success alert
+            setTimeout(() => navigate("/"), 3000); // Redirect to homepage after 3 seconds
         } catch (error) {
-            toast.error("Invalid credentials. Please try again!"); // Display error toast
+            setAlert({ type: "danger", message: "Invalid credentials. Please try again!" }); // Show error alert
         }
     };
 
@@ -24,6 +27,7 @@ const Login: React.FC = () => {
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
                 <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+                {alert && <Alert type={alert.type} message={alert.message} />} {/* Display alert */}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block mb-2 font-semibold">Email</label>

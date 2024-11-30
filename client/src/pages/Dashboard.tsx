@@ -26,7 +26,7 @@ const Dashboard: React.FC = () => {
                 <TaskForm addTask={addTask} />
                 <h2 className="text-xl font-bold mt-8 mb-4">Task List</h2>
                 {/* Pass tasks to TaskList */}
-                <TaskList tasks={tasks} />
+                <TaskList tasks={tasks} getAllTask={getAllTask} />
             </div>
         </div>
     );

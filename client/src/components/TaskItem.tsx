@@ -1,6 +1,5 @@
 import React from "react";
-import toast from "../utils/toastConfig";
-import { deleteTask, updateTaskStatus } from "../services/api";
+import { deleteTask, updateTaskStatus } from "../services/api"; // Centralized API functions
 
 export interface Task {
     _id: string;
@@ -10,26 +9,33 @@ export interface Task {
     dueDate: string;
 }
 
-const TaskItem: React.FC<{ task: Task }> = ({ task }) => {
-    // Handle Task Deletion
+interface TaskItemProps {
+    task: Task;
+    setAlert: React.Dispatch<React.SetStateAction<{ type: string; message: string } | null>>; // To pass alert to parent
+    getAllTask: any
+}
+
+
+const TaskItem: React.FC<TaskItemProps> = ({ task, setAlert, getAllTask }) => {
     const handleDelete = async () => {
         try {
-            await deleteTask(task._id); // Using centralized API function
-            toast.success("Task deleted successfully!");
-            window.location.reload(); // Refresh task list
+            await deleteTask(task._id);
+            getAllTask(); // API call to delete task
+            setAlert({ type: "danger", message: "Task deleted successfully!" }); // Show success alert
         } catch (error) {
-            toast.error("Error deleting task.");
+            setAlert({ type: "danger", message: "Failed to delete task!" }); // Show error alert
         }
     };
 
-    // Handle Status Update
     const handleStatusUpdate = async (newStatus: string) => {
         try {
-            await updateTaskStatus(task._id, newStatus); // Using centralized API function
-            toast.success("Task status updated!");
-            window.location.reload(); // Refresh task list
+            await updateTaskStatus(task._id, newStatus); // API call to update task status
+            getAllTask();
+            setAlert({ type: "success", message: `Task marked as ${newStatus}!` }); // Show success alert
+            setTimeout(() => setAlert(null), 4000); // Hide alert after 2 seconds
         } catch (error) {
-            toast.error("Error updating task status.");
+            setAlert({ type: "danger", message: "Failed to update task status!" }); // Show error alert
+            setTimeout(() => setAlert(null), 4000); // Hide alert after 2 seconds
         }
     };
 

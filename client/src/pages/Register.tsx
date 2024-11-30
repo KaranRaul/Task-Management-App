@@ -1,22 +1,25 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api"; // Centralized API function
-import toast from "../utils/toastConfig"; // Centralized Toast
+import Alert from "../components/Alert"; // Import Alert component
 
 const Register: React.FC = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [alert, setAlert] = useState<{ type: string; message: string } | null>(
+        null
+    );
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await registerUser({ name, email, password }); // Using centralized register API function
-            toast.success("Registration successful! Please log in.");
-            navigate("/login"); // Redirect to login page after successful registration
+            await registerUser({ name, email, password }); // Call centralized API
+            setAlert({ type: "success", message: "Registration successful! Please log in." }); // Show success alert
+            setTimeout(() => navigate("/login"), 2000); // Redirect to login page after 3 seconds
         } catch (error) {
-            toast.error("Registration failed. Please try again!"); // Display error toast
+            setAlert({ type: "danger", message: "Registration failed. Please try again!" }); // Show error alert
         }
     };
 
@@ -24,6 +27,7 @@ const Register: React.FC = () => {
         <div className="flex justify-center items-center min-h-screen bg-gray-100">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
                 <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+                {alert && <Alert type={alert.type} message={alert.message} />} {/* Display alert */}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block mb-2 font-semibold">Name</label>
