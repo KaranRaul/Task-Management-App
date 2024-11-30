@@ -17,7 +17,7 @@ const Login: React.FC = () => {
             const response = await loginUser({ email, password }); // Call centralized API
             localStorage.setItem("token", response.token); // Store token
             setAlert({ type: "success", message: "Login successful!" }); // Show success alert
-            setTimeout(() => navigate("/"), 3000); // Redirect to homepage after 3 seconds
+            setTimeout(() => navigate("/"), 2000); // Redirect to homepage after 3 seconds
         } catch (error) {
             setAlert({ type: "danger", message: "Invalid credentials. Please try again!" }); // Show error alert
         }
