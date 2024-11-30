@@ -13,11 +13,11 @@ interface TaskListProps {
     tasks: Task[];
 }
 
-const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks }: { tasks: any }) => {
     const [selectedStatus, setSelectedStatus] = useState("Pending");
 
     // Filter tasks based on the selected status
-    const filteredTasks = tasks.filter((task) => task.status === selectedStatus);
+    const filteredTasks = tasks.filter((task: any) => task.status === selectedStatus);
 
     const statuses = ["Pending", "In Progress", "Completed"];
 
@@ -30,8 +30,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
                         key={status}
                         onClick={() => setSelectedStatus(status)}
                         className={`py-2 px-4 text-sm font-medium ${selectedStatus === status
-                                ? "text-blue-500 border-b-2 border-blue-500"
-                                : "text-gray-500 hover:text-blue-500"
+                            ? "text-blue-500 border-b-2 border-blue-500"
+                            : "text-gray-500 hover:text-blue-500"
                             }`}
                     >
                         {status}
@@ -42,7 +42,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
             {/* Task Items */}
             <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredTasks.length > 0 ? (
-                    filteredTasks.map((task) => <TaskItem key={task._id} task={task} />)
+                    filteredTasks.map((task: any) => <TaskItem key={task._id} task={task} />)
                 ) : (
                     <p className="text-gray-500">No tasks in this category.</p>
                 )}
