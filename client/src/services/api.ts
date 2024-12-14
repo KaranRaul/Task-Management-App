@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_URL = "https://task-management-app-jawl.onrender.com/api"; // Adjust based on your backend URL
 
+// const API_URL = "http://localhost:5000/api"; // Adjust based on your backend URL
 // Create an axios instance
 const api = axios.create({
     baseURL: API_URL,
