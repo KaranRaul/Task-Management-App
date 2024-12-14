@@ -27,7 +27,7 @@ router.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(201).json({ message: "User registered successfully" });
     }
     catch (error) {
-        res.status(500).json({ message: "Error registering user" });
+        res.status(500).json({ message: "Error registering user", error });
     }
 }));
 // Login User
