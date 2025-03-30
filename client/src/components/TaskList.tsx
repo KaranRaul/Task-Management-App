@@ -1,8 +1,9 @@
+// TaskList.tsx
 import { useState } from 'react';
 import TaskItem from './TaskItem';
 import Alert from './Alert';
-import { TabButton } from './TabButton'; // Assuming TabButton is in the same directory or adjust the path accordingly
-import { CheckCircle, Clock, List } from 'lucide-react'; // Importing icons
+import { TabButton } from './TabButton';
+import { CheckCircle, Clock, List, Loader2 } from 'lucide-react';
 
 interface Task {
     _id: string;
@@ -18,7 +19,6 @@ const TaskList = ({ tasks, getAllTask }: { tasks: Task[], getAllTask: any }) => 
 
     const filteredTasks = tasks.filter(task => task.status === selectedStatus);
 
-    // Define statuses with labels, colors, and icons
     const statuses = [
         { id: "Pending", label: "Pending", color: "yellow", icon: Clock },
         { id: "In Progress", label: "In Progress", color: "blue", icon: List },
@@ -26,11 +26,10 @@ const TaskList = ({ tasks, getAllTask }: { tasks: Task[], getAllTask: any }) => 
     ];
 
     return (
-        <div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
             {alert && <Alert type={alert.type as "success" | "danger"} message={alert.message} />}
 
-            {/* Task status tabs */}
-            <div className="flex justify-center gap-4 border-b border-gray-200 mb-4">
+            <div className="flex flex-wrap gap-2 mb-6">
                 {statuses.map(({ id, label, color, icon }) => (
                     <TabButton
                         key={id}
@@ -44,16 +43,24 @@ const TaskList = ({ tasks, getAllTask }: { tasks: Task[], getAllTask: any }) => 
                 ))}
             </div>
 
-            {/* Task list */}
-            <div className="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredTasks.length > 0 ? (
-                    filteredTasks.map(task => (
-                        <TaskItem key={task._id} task={task} setAlert={setAlert} getAllTask={getAllTask} />
-                    ))
-                ) : (
-                    <p className="text-gray-500">No tasks in this category.</p>
-                )}
-            </div>
+            {filteredTasks.length === 0 ? (
+                <div className="text-center py-12">
+                    <Loader2 className="mx-auto h-12 w-12 text-gray-400 animate-spin" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks found</h3>
+                    <p className="mt-1 text-sm text-gray-500">Get started by creating a new task.</p>
+                </div>
+            ) : (
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredTasks.map(task => (
+                        <TaskItem
+                            key={task._id}
+                            task={task}
+                            setAlert={setAlert}
+                            getAllTask={getAllTask}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
